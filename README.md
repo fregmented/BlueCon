@@ -1,6 +1,6 @@
 # BlueCon
 
-BlueCon is SPP/RFCOMM Service for Android.
+BlueCon is SPP Service for Android.
 
 this Service is support Android 4.4 and grater environment.
 
@@ -136,6 +136,6 @@ removeSPPLiestener(SPPListener sppListener);
 
 sending message to device is very simple. just call
 ```java
-    svBinder.sendPacket(byte[] data);
+svBinder.sendPacket(byte[] data);
 ```
 receiving packet incoming to SPPListener.onPacketReceived.
