@@ -28,14 +28,16 @@ import me.kudryavka.bluecon.SPP.SPPService;
 public class SPPActivity extends AppCompatActivity implements View.OnClickListener, SPPListener {
 
     private final static String TAG = "SPPActivity";
-    SPPService.SPPBinder svBinder;
+
+    private SPPService.SPPBinder svBinder;
+    private boolean isSVConned;
+
     private EditText msg_for_send;
     private Button btn_get_paired_devices;
     private Button btn_connect_to_device;
     private Button btn_send_to_device;
     private TextView con_device_info;
     private ListView lists;
-    private boolean isSVConned;
     private Handler handler;
     private ArrayAdapter<String> adapter;
 
@@ -59,6 +61,7 @@ public class SPPActivity extends AppCompatActivity implements View.OnClickListen
         bindService(new Intent(this, SPPService.class), serviceConnection, BIND_AUTO_CREATE);
 
         handler = new Handler();
+
     }
 
     @Override

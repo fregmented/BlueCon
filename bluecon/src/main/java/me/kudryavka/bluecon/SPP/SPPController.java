@@ -135,6 +135,12 @@ public class SPPController {
         this.bufferSize = bufferSize;
     }
 
+    void init(String address, int bufferSize){
+        Log.d(TAG, "DEVICE by address : " + address + "\nBUFFER SIZE : " + bufferSize);
+        this.conDevice = bluetoothAdapter.getRemoteDevice(address);
+        this.bufferSize = bufferSize;
+    }
+
     boolean isInited(){
         return (this.conDevice != null && bufferSize > 0);
     }

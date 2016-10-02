@@ -48,8 +48,36 @@ public class SPPService extends Service {
             sppController.init(device, 1024);
         }
 
+        public void init(String address, int bufferSize){
+            sppController.init(address, bufferSize);
+        }
+
+        public void init(String address){
+            sppController.init(address, 1024);
+        }
+
         public boolean isInited(){
             return sppController.isInited();
+        }
+
+        public void connect(BluetoothDevice device, int buffSize){
+            sppController.init(device, buffSize);
+            sppController.connect();
+        }
+
+        public void connect(BluetoothDevice device){
+            sppController.init(device, 1024);
+            sppController.connect();
+        }
+
+        public void connect(String address, int buffSize){
+            sppController.init(address, buffSize);
+            sppController.connect();
+        }
+
+        public void connect(String address){
+            sppController.init(address, 1024);
+            sppController.connect();
         }
 
         public void connect(){
