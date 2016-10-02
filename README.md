@@ -131,4 +131,6 @@ svBinder.addSPPListener(new SPPListener() {
 });
 ```
 you can remove listener from the Service
+```java
     removeSPPLiestener(SPPListener sppListener);
+```
