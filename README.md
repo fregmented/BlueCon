@@ -51,42 +51,41 @@ protected void onDestroy() {
 
 after the Service Connected, you can get ArrayList<PairedDevice>
 ```java
-    svBinder.getPairedDevices();
+svBinder.getPairedDevices();
 ```
-
 and you can connect device.
 
 if you want connect to device later, you can just init device and buffur size and connect later.
 ```java
-    svBinder.init(BluetoothDevice device, int bufferSize);
+svBinder.init(BluetoothDevice device, int bufferSize);
 ```
 
 or you can connect to device by address.
 ```java
-    svBinder.init(String address, int bufferSize);
+svBinder.init(String address, int bufferSize);
 ```
 
 or you can use default buffer size(1024bytes).
 ```java
-    svBinder.init(BluetoothDevice device);
-    svBinder.init(String address);
+svBinder.init(BluetoothDevice device);
+svBinder.init(String address);
 ```
 
 and connect to device when you want.
 ```java
-    svBinder.connect();
+svBinder.connect();
 ```
 
 either you can connect to device immediately.
 ```java
-    svBinder.connect(BluetoothDevice device, int buffSize);
-    svBinder.connect(String address, int buffSize);
+svBinder.connect(BluetoothDevice device, int buffSize);
+svBinder.connect(String address, int buffSize);
 ```
 
 Of course you can use default buffer size.
 ```java
-    svBinder.connect(BluetoothDevice device);
-    svBinder.connect(String address);
+svBinder.connect(BluetoothDevice device);
+svBinder.connect(String address);
 ```
 
 after connect, you must add Listener to the Service.
@@ -132,5 +131,11 @@ svBinder.addSPPListener(new SPPListener() {
 ```
 you can remove listener from the Service
 ```java
-    removeSPPLiestener(SPPListener sppListener);
+removeSPPLiestener(SPPListener sppListener);
 ```
+
+sending message to device is very simple. just call
+```java
+    svBinder.sendPacket(byte[] data);
+```
+receiving packet incoming to SPPListener.onPacketReceived.
