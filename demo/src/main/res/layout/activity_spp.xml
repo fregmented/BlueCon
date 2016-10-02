@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    tools:context="me.kudryavka.bluecon_demo.SPPActivity">
+
+    <Button
+        android:id="@+id/btn_get_paired_devices"
+        android:text="@string/btn_get_paired_devices"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"/>
+    <TextView
+        android:id="@+id/con_device_info"
+        android:text="@string/con_device_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:layout_margin="15dp"
+        android:layout_below="@+id/btn_get_paired_devices"/>
+    <Button
+        android:id="@+id/btn_connect_to_device"
+        android:text="@string/btn_connect_to_device"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/con_device_info"/>
+
+    <ListView
+        android:id="@+id/lists"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/btn_connect_to_device"
+        android:layout_above="@+id/msg_for_send"/>
+    <EditText
+        android:id="@+id/msg_for_send"
+        android:hint="@string/msg_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btn_send_to_device"
+        android:layout_margin="10dp"/>
+
+    <Button
+        android:id="@+id/btn_send_to_device"
+        android:text="@string/btn_send_to_device"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+</RelativeLayout>
