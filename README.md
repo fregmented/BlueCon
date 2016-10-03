@@ -2,7 +2,7 @@
 
 [ ![Download](https://api.bintray.com/packages/seyriz/BlueCon/bluecon/images/download.svg) ](https://bintray.com/seyriz/BlueCon/bluecon/_latestVersion)
 
-BlueCon is SPP Server & Client Service for Android.
+BlueCon is SPP Server & Client Library for Android.
 
 this Service is support Android 4.4 and grater environment.
 
@@ -24,132 +24,315 @@ Add permission in your manifest file for using BLUETOOTH like this.
 ```xml
 <uses-permission android:name="android.permission.BLUETOOTH" />
 ```
-and connect service for using library
 
-first, make service connection
+### Client
+
+#### as a Service
+for using client service, Using SPPClientService.
+Define Binder and Service connect condition.
 ```java
-private SPPService.SPPBinder svBinder;
+private SPPClientService.SPPBinder svBinder;
 private boolean isSVConned;
-
+```
+Bind service to Application's context.
+```java
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    ...
+    bindService(new Intent(this, SPPClientService.class), serviceConnection, BIND_AUTO_CREATE);
+    ...
+}
+```
+Unbind service when app is dead
+```java
+@Override
+protected void onDestroy() {
+    ... 
+    unbindService(serviceConnection);
+    ...
+}
+```
+Make ServiceConnection and add SPPLietner to the Service.
+```java
 public ServiceConnection serviceConnection = new ServiceConnection() {
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         Log.e("SERVICE", "CONNNECTED");
-        svBinder = (SPPService.SPPBinder)service;
+        svBinder = (SPPClientService.SPPBinder)service;
         isSVConned = true;
-        svBinder.addSPPListener(SPPActivity.this);
-    }
+        svBinder.addSPPListener(new SPPListener() {
+            @Override
+            public void onPacketReceived(String address, byte[] packet) {
+                // Received packets
+            }
 
+            @Override
+            public void onPacketSended(String address, byte[] packet) {
+                // Sended packets
+            }
+
+            @Override
+            public void onBluetoothDeviceConnected(String name, String address) {
+                // on bluetooth device connected
+            }
+
+            @Override
+            public void onBluetoothDeviceConnecting(@Nullable String name) {
+                // on connecting to device
+            }
+
+            @Override
+            public void onBluetoothDeviceDisconnected(@Nullable String name) {
+                // on disconnected from device
+            }
+
+            @Override
+            public void onBluetoothDisabled() {
+                // if bluetooth is off
+            }
+
+            @Override
+            public void onBluetoothNotSupported() {
+                // Android device has not bluetooth module
+            }
+        });
+    }
+    
     @Override
     public void onServiceDisconnected(ComponentName name) {
         Log.e("SERVICE", "DISCONNNECTED");
         isSVConned = false;
     }
- };
+};
 ```
-next bind service.
+You can get Paird device list.
 ```java
-protected void onCreate(Bundle savedInstanceState) {
-    ...
-    bindService(new Intent(this, SPPService.class), serviceConnection, BIND_AUTO_CREATE);
-    ...
-}
-
-@Override
-protected void onDestroy() {
-    ...
-    unbindService(serviceConnection);
-    ...
-}
+ArrayList<BluetoothDevice> devices = svBinder.getPairedDevices();
 ```
-
-after the Service Connected, you can get ArrayList<PairedDevice>
-```java
-svBinder.getPairedDevices();
-```
-and you can connect device.
-
-if you want connect to device later, you can just init device and buffur size and connect later.
-```java
-svBinder.init(BluetoothDevice device, int bufferSize);
-```
-
-or you can connect to device by address.
-```java
-svBinder.init(String address, int bufferSize);
-```
-
-or you can use default buffer size(1024bytes).
-```java
-svBinder.init(BluetoothDevice device);
-svBinder.init(String address);
-```
-
-and connect to device when you want.
-```java
-svBinder.connect();
-```
-
-either you can connect to device immediately.
-```java
-svBinder.connect(BluetoothDevice device, int buffSize);
-svBinder.connect(String address, int buffSize);
-```
-
-Of course you can use default buffer size.
+You can connect to device using BluetoothDevice or Device's MAC address
 ```java
 svBinder.connect(BluetoothDevice device);
 svBinder.connect(String address);
 ```
-
-after connect, you must add Listener to the Service.
-
-You can use multiple listener at the same time.
+Sending a packet
 ```java
-svBinder.addSPPListener(new SPPListener() {
-    @Override
-    public void onPacketReceived(byte[] packet) {
+svBinder.sendPacket(byte[] data)
+```
 
+#### As a instance
+Get Controller's Instance
+```java
+SPPClientController sppClientController = SPPClientController.getInstance(getApplicationContext());
+```
+Add SPPListener to Instance
+```java
+sppClientController.addSPPListener(new SPPListener() {
+    @Override
+    public void onPacketReceived(String address, byte[] packet) {
+        // Received packets
     }
 
     @Override
-    public void onPacketSended(byte[] packet) {
-
+    public void onPacketSended(String address, byte[] packet) {
+        // Sended packets
     }
 
     @Override
     public void onBluetoothDeviceConnected(String name, String address) {
-
+        // on bluetooth device connected
     }
 
     @Override
-    public void onBluetoothDeviceDisconnected() {
+    public void onBluetoothDeviceConnecting(@Nullable String name) {
+        // on connecting to device
+    }
 
+    @Override
+    public void onBluetoothDeviceDisconnected(@Nullable String name) {
+        // on disconnected from device
     }
 
     @Override
     public void onBluetoothDisabled() {
-
+        // if bluetooth is off
     }
 
     @Override
     public void onBluetoothNotSupported() {
-
-    }
-
-    @Override
-    public void onBluetoothDeviceConnecting() {
-
+        // Android device has not bluetooth module
     }
 });
 ```
-you can remove listener from the Service
+You can get Paird device list.
 ```java
-removeSPPLiestener(SPPListener sppListener);
+ArrayList<BluetoothDevice> devices = sppClientController.getPairedDevices();
+```
+You can connect to device using BluetoothDevice or Device's MAC address
+```java
+sppClientController.connect(BluetoothDevice device);
+sppClientController.connect(String address);
+```
+Sending a packet
+```java
+sppClientController.sendPacket(byte[] data)
 ```
 
-sending message to device is very simple. just call
+### Server
+
+#### as a Service
+for using server service, Using SPPServerService.
+Define Binder and Service connect condition.
 ```java
-svBinder.sendPacket(byte[] data);
+private SPPServerService.SPPBinder svBinder;
+private boolean isSVConned;
 ```
-receiving packet incoming to SPPListener.onPacketReceived.
+Bind service to Application's context.
+```java
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    ...
+    bindService(new Intent(this, SPPServerService.class), serviceConnection, BIND_AUTO_CREATE);
+    ...
+}
+```
+Unbind service when app is dead
+```java
+@Override
+protected void onDestroy() {
+    ... 
+    unbindService(serviceConnection);
+    ...
+}
+```
+Make ServiceConnection and add SPPLietner to the Service.
+```java
+public ServiceConnection serviceConnection = new ServiceConnection() {
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        Log.e("SERVICE", "CONNNECTED");
+        svBinder = (SPPServerController.SPPBinder)service;
+        isSVConned = true;
+        svBinder.addSPPListener(new SPPListener() {
+            @Override
+            public void onPacketReceived(String address, byte[] packet) {
+                // Received packets
+            }
+
+            @Override
+            public void onPacketSended(String address, byte[] packet) {
+                // Sended packets
+            }
+
+            @Override
+            public void onBluetoothDeviceConnected(String name, String address) {
+                // on bluetooth device connected
+            }
+
+            @Override
+            public void onBluetoothDeviceConnecting(@Nullable String name) {
+                // on connecting to device
+            }
+
+            @Override
+            public void onBluetoothDeviceDisconnected(@Nullable String name) {
+                // on disconnected from device
+            }
+
+            @Override
+            public void onBluetoothDisabled() {
+                // if bluetooth is off
+            }
+
+            @Override
+            public void onBluetoothNotSupported() {
+                // Android device has not bluetooth module
+            }
+        });
+    }
+    
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        Log.e("SERVICE", "DISCONNNECTED");
+        isSVConned = false;
+    }
+};
+```
+You can get Connecte device list.
+```java
+ArrayList<BluetoothDevice> devices = sppServerController.getConnectedDevice()
+```
+You can start server with server's name, inputStream buffersize, server mode.
+```java
+SERVER_MODE{SINGLE_CONNECTION, MULTIPLE_CONNECTION}
+sppServerController.startServer(String serverName, int bufferSize, ENUMS.SERVER_MODE serverMode);
+```
+Sending a packet
+```java
+sppServerController.sendPacket(String addressbyte[] data);
+```
+or broadcast
+```java
+sppServerController.broadcastPacket(byte[] data);
+```
+
+#### As a instance
+Get Controller's Instance
+```java
+SPPServerController sppServerController = SPPServerController.getInstance(getApplicationContext());
+```
+Add SPPListener to Instance
+```java
+sppServerController.addSPPListener(new SPPListener() {
+    @Override
+    public void onPacketReceived(String address, byte[] packet) {
+        // Received packets
+    }
+
+    @Override
+    public void onPacketSended(String address, byte[] packet) {
+        // Sended packets
+    }
+
+    @Override
+    public void onBluetoothDeviceConnected(String name, String address) {
+        // on bluetooth device connected
+    }
+
+    @Override
+    public void onBluetoothDeviceConnecting(@Nullable String name) {
+        // on connecting to device
+    }
+
+    @Override
+    public void onBluetoothDeviceDisconnected(@Nullable String name) {
+        // on disconnected from device
+    }
+
+    @Override
+    public void onBluetoothDisabled() {
+        // if bluetooth is off
+    }
+
+    @Override
+    public void onBluetoothNotSupported() {
+        // Android device has not bluetooth module
+    }
+});
+```
+You can get Connecte device list.
+```java
+ArrayList<BluetoothDevice> devices = sppServerController.getConnectedDevice()
+```
+You can start server with server's name, inputStream buffersize, server mode.
+```java
+SERVER_MODE{SINGLE_CONNECTION, MULTIPLE_CONNECTION}
+sppServerController.startServer(String serverName, int bufferSize, ENUMS.SERVER_MODE serverMode);
+```
+Sending a packet
+```java
+sppServerController.sendPacket(String addressbyte[] data);
+```
+or broadcast
+```java
+sppServerController.broadcastPacket(byte[] data);
+```

@@ -18,6 +18,7 @@ import java.util.Set;
 import me.kudryavka.bluecon.Consts.BT_UUID;
 import me.kudryavka.bluecon.Consts.ENUMS;
 import me.kudryavka.bluecon.Listeners.SPPListener;
+import me.kudryavka.bluecon.SPPServer.SPPServerController;
 
 /**
  * Created by seyriz on 2016. 10. 3..
@@ -28,21 +29,30 @@ public class SPPClientController {
 
     private Context context;
 
+    private static SPPClientController instance;
+
     private ENUMS.BLUETOOTH_STATES bluetooth_states;
 
     private ArrayList<BluetoothDevice> pairedDevices = new ArrayList<>();
     private ArrayList<SPPListener> sppListeners = new ArrayList<>();
     private BluetoothAdapter bluetoothAdapter;
-    private ConnectThread connectThread;
-    private ComThread comThread;
+    private ConnectionThread connectionThread;
+    private CommunicationThread communicationThread;
 
     private BluetoothDevice conDevice;
 
     private Integer bufferSize;
 
-    public SPPClientController(Context context) {
+    public static SPPClientController getInstance(Context context) {
+        if(instance==null){
+            instance = new SPPClientController(context);
+        }
+        return instance;
+    }
+
+    private SPPClientController(Context context) {
         this.context = context;
-        getBlueToothAdapter();
+        isBlueToothEnabled();
         setBluetooth_states(ENUMS.BLUETOOTH_STATES.DISCONNECTED, null);
     }
 
@@ -75,7 +85,7 @@ public class SPPClientController {
         }
     }
 
-    ArrayList<BluetoothDevice> getPairedDevices(){
+    public ArrayList<BluetoothDevice> getPairedDevices(){
         if(isBlueToothEnabled()){
             if(pairedDevices == null || pairedDevices.size() == 0) {
                 Set<BluetoothDevice> pDevices = getBlueToothAdapter().getBondedDevices();
@@ -89,7 +99,7 @@ public class SPPClientController {
         return null;
     }
 
-    ENUMS.BLUETOOTH_STATES getBluetooth_states() {
+    public ENUMS.BLUETOOTH_STATES getBluetooth_states() {
         return bluetooth_states;
     }
 
@@ -116,7 +126,7 @@ public class SPPClientController {
         }
     }
 
-    void addSPPListener(SPPListener sppListener){
+    public void addSPPListener(SPPListener sppListener){
         Log.d(TAG, "LISTENER " + sppListener.getClass().getCanonicalName() + " ADDED");
         if(sppListeners==null){
             sppListeners = new ArrayList<>();
@@ -124,37 +134,46 @@ public class SPPClientController {
         sppListeners.add(sppListener);
     }
 
-    void removeSPPLiestener(SPPListener sppListener){
+    public void removeSPPLiestener(SPPListener sppListener){
         Log.d(TAG, "LISTENER " + sppListener.getClass().getCanonicalName() + " REMOVED");
         if(sppListeners!=null){
             sppListeners.remove(sppListener);
         }
     }
 
-    void init(BluetoothDevice device, int bufferSize){
+    void connect(){
+        Log.d(TAG, "CONNECT TO : " + conDevice);
+        stop();
+        startConnectionThread(conDevice);
+        setBluetooth_states(ENUMS.BLUETOOTH_STATES.CONNECTING, conDevice.getAddress());
+    }
+
+    public void connect(BluetoothDevice device){
+        Log.d(TAG, "DEVICE : " + device + "\nBUFFER SIZE : " + bufferSize);
+        this.conDevice = device;
+        this.bufferSize = 1024;
+        connect();
+    }
+
+    public void connect(String address){
+        Log.d(TAG, "DEVICE by address : " + address + "\nBUFFER SIZE : " + bufferSize);
+        this.conDevice = bluetoothAdapter.getRemoteDevice(address);
+        this.bufferSize = 1024;
+        connect();
+    }
+
+    public void connect(BluetoothDevice device, int bufferSize){
         Log.d(TAG, "DEVICE : " + device + "\nBUFFER SIZE : " + bufferSize);
         this.conDevice = device;
         this.bufferSize = bufferSize;
+        connect();
     }
 
-    void init(String address, int bufferSize){
+    public void connect(String address, int bufferSize){
         Log.d(TAG, "DEVICE by address : " + address + "\nBUFFER SIZE : " + bufferSize);
         this.conDevice = bluetoothAdapter.getRemoteDevice(address);
         this.bufferSize = bufferSize;
-    }
-
-    boolean isInited(){
-        return (this.conDevice != null && bufferSize > 0);
-    }
-
-    void connect(){
-        if(conDevice!=null) {
-            Log.d(TAG, "CONNECT TO : " + conDevice);
-            resetThreads();
-            connectThread = new ConnectThread(conDevice);
-            connectThread.start();
-            setBluetooth_states(ENUMS.BLUETOOTH_STATES.CONNECTING, conDevice.getAddress());
-        }
+        connect();
     }
 
     private void reconnect(){
@@ -165,60 +184,79 @@ public class SPPClientController {
 
     private synchronized void connected(BluetoothSocket socket){
         Log.d(TAG, "CONNECTED : " + conDevice);
-        resetThreads();
-        comThread = new ComThread(socket, bufferSize);
-        comThread.start();
-
+        killThreads();
+        startCommunicationThread(socket);
         setBluetooth_states(ENUMS.BLUETOOTH_STATES.CONNECTED, conDevice.getAddress());
     }
 
-    synchronized void stop() {
-        if(conDevice!=null) {
-            Log.d(TAG, "DISCONNECT : " + conDevice);
-            resetThreads();
-            setBluetooth_states(ENUMS.BLUETOOTH_STATES.DISCONNECTED, conDevice.getAddress());
+    private void startConnectionThread(BluetoothDevice device){
+        if(connectionThread==null) {
+            connectionThread = new ConnectionThread(device);
+            connectionThread.start();
         }
     }
 
-    void send(byte[] data) {
-        ComThread t;
-        synchronized (this) {
-            if (getBluetooth_states() == ENUMS.BLUETOOTH_STATES.CONNECTED) {
-                t = comThread;
+    private void startCommunicationThread(BluetoothSocket socket){
+        if(communicationThread==null){
+            communicationThread = new CommunicationThread(socket, bufferSize);
+            communicationThread.start();
+        }
+    }
+
+    public synchronized void stop(){
+        killThreads();
+    }
+
+    private synchronized void restartConnectionThread(BluetoothDevice device){
+        killConnectionThread();
+        startConnectionThread(device);
+    }
+
+    private synchronized void restartCommunicationThread(BluetoothSocket socket){
+        killCommunicationThread();
+        startCommunicationThread(socket);
+    }
+
+    private synchronized void killThreads(){
+        killCommunicationThread();
+        killConnectionThread();
+    }
+
+    private synchronized void killConnectionThread(){
+        if(connectionThread!=null) {
+            connectionThread.interrupt();
+            connectionThread = null;
+        }
+
+    }
+
+    private synchronized void killCommunicationThread(){
+        if(communicationThread!=null){
+            communicationThread.interrupt();
+            communicationThread = null;
+        }
+    }
+
+    public void sendPacket(byte[] data){
+        CommunicationThread t;
+        synchronized (this){
+            if(getBluetooth_states() == ENUMS.BLUETOOTH_STATES.CONNECTED){
+                t = communicationThread;
             }
             else {
                 Log.e(TAG, "NOT CONNECTED");
                 return;
             }
         }
-        t.write(data);
+        t.sendPacket(data);
     }
 
-    private synchronized void resetThreads() {
-        resetConnectThread();
-        resetComThread();
-    }
-
-    private synchronized void resetConnectThread() {
-        if (connectThread != null) {
-            connectThread.interrupt();
-            connectThread = null;
-        }
-    }
-
-    private synchronized void resetComThread() {
-        if (comThread != null) {
-            comThread.interrupt();
-            comThread = null;
-        }
-    }
-
-    private class ConnectThread extends Thread{
+    private class ConnectionThread extends Thread{
 
         private final BluetoothDevice mDevice;
         private final BluetoothSocket mSocket;
 
-        public ConnectThread(BluetoothDevice device){
+        public ConnectionThread(BluetoothDevice device){
             mDevice = device;
             BluetoothSocket tempSock = null;
             try{
@@ -243,11 +281,11 @@ public class SPPClientController {
                 }
                 catch (IOException e){
                     Log.e(TAG, "Failed to connect to SOCKET. retrying...");
-                    reconnect();
+                    restartConnectionThread(mDevice);
                     interrupt();
                 }
                 synchronized (SPPClientController.this){
-                    connectThread = null;
+                    connectionThread = null;
                 }
                 connected(mSocket);
             }
@@ -265,13 +303,13 @@ public class SPPClientController {
         }
     }
 
-    private class ComThread extends Thread{
+    private class CommunicationThread extends Thread{
         private final BluetoothSocket socket;
         private final InputStream inputStream;
         private final OutputStream outputStream;
         private final int buffSize;
 
-        public ComThread(BluetoothSocket socket, int buffSize){
+        public CommunicationThread(BluetoothSocket socket, int buffSize){
             this.socket = socket;
             InputStream tempIS = null;
             OutputStream tempOS = null;
@@ -310,7 +348,7 @@ public class SPPClientController {
             interrupt();
         }
 
-        public void write(byte[] data){
+        public void sendPacket(byte[] data){
             try{
                 outputStream.write(data);
                 for(SPPListener sppListener : sppListeners){

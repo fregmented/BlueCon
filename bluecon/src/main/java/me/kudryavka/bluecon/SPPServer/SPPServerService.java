@@ -25,8 +25,8 @@ public class SPPServerService extends Service {
 
     @Override
     public void onCreate() {
-        sppServerController = new SPPServerController(getApplicationContext());
         super.onCreate();
+        sppServerController = SPPServerController.getInstance(getApplicationContext());
     }
 
     @Override

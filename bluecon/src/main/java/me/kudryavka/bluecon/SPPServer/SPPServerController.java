@@ -31,6 +31,8 @@ public class SPPServerController {
 
     private Context context;
 
+    private static SPPServerController instance;
+
     private ArrayList<SPPListener> sppListeners = new ArrayList<>();
     private BluetoothAdapter bluetoothAdapter;
     private ENUMS.BLUETOOTH_STATES bluetooth_states;
@@ -42,9 +44,16 @@ public class SPPServerController {
     private String serverName;
     private ENUMS.SERVER_MODE serverMode;
 
-    public SPPServerController(Context context) {
+    public static SPPServerController getInstance(Context context){
+        if(instance == null){
+            instance = new SPPServerController(context);
+        }
+        return instance;
+    }
+
+    private SPPServerController(Context context) {
         this.context = context;
-        getBlueToothAdapter();
+        isBlueToothEnabled();
         setBluetooth_states(ENUMS.BLUETOOTH_STATES.DISCONNECTED, null);
     }
 
@@ -77,7 +86,7 @@ public class SPPServerController {
         }
     }
 
-    ENUMS.BLUETOOTH_STATES getBluetooth_states() {
+    public ENUMS.BLUETOOTH_STATES getBluetooth_states() {
         return bluetooth_states;
     }
 
@@ -104,7 +113,7 @@ public class SPPServerController {
         }
     }
 
-    void addSPPListener(SPPListener sppListener){
+    public void addSPPListener(SPPListener sppListener){
         Log.d(TAG, "LISTENER " + sppListener.getClass().getCanonicalName() + " ADDED");
         if(sppListeners==null){
             sppListeners = new ArrayList<>();
@@ -112,14 +121,14 @@ public class SPPServerController {
         sppListeners.add(sppListener);
     }
 
-    void removeSPPLiestener(SPPListener sppListener){
+    public void removeSPPLiestener(SPPListener sppListener){
         Log.d(TAG, "LISTENER " + sppListener.getClass().getCanonicalName() + " REMOVED");
         if(sppListeners!=null){
             sppListeners.remove(sppListener);
         }
     }
 
-    void startServer(String serverName, int bufferSize, ENUMS.SERVER_MODE serverMode){
+    public void startServer(String serverName, int bufferSize, ENUMS.SERVER_MODE serverMode){
         this.serverName = serverName;
         this.bufferSize = bufferSize;
         this.serverMode = serverMode;
@@ -149,7 +158,7 @@ public class SPPServerController {
         }
     }
 
-    synchronized void stop(){
+    public synchronized void stop(){
         killThreads();
     }
 
@@ -183,7 +192,7 @@ public class SPPServerController {
         }
     }
 
-    void sendPacket(String address, byte[] data){
+    public void sendPacket(String address, byte[] data){
         CommunicationThread t;
         synchronized (this){
             if(getBluetooth_states() == ENUMS.BLUETOOTH_STATES.CONNECTED){
@@ -197,7 +206,7 @@ public class SPPServerController {
         t.sendPacket(address, data);
     }
 
-    void broadcastPacket(byte[] data){
+    public void broadcastPacket(byte[] data){
         CommunicationThread t;
         synchronized (this){
             if(getBluetooth_states() == ENUMS.BLUETOOTH_STATES.CONNECTED){
@@ -211,7 +220,7 @@ public class SPPServerController {
         t.broadcastPacket(data);
     }
 
-    synchronized ArrayList<BluetoothDevice> getConnectedDevices(){
+    public synchronized ArrayList<BluetoothDevice> getConnectedDevices(){
         if(getBluetooth_states() == ENUMS.BLUETOOTH_STATES.CONNECTED){
             return communicationThread.getConnectedDevice();
         }

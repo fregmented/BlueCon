@@ -40,7 +40,7 @@ publish {
     groupId = 'me.kudryavka'
     artifactId = 'bluecon'
     publishVersion = '0.2'
-    desc = 'BlueCon - Android BT SPP Service'
+    desc = 'BlueCon - Android BT SPP Server & Client Library'
     website = 'https://github.com/seyriz/BlueCon'
     bintrayUser = 'seyriz'
     bintrayKey = properties.getProperty("bintray.apiKey")

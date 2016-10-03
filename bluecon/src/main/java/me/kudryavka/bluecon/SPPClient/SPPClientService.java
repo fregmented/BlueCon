@@ -21,7 +21,7 @@ public class SPPClientService extends Service {
 
     @Override
     public void onCreate() {
-        sppClientController = new SPPClientController(getApplicationContext());
+        sppClientController = SPPClientController.getInstance(getApplicationContext());
         super.onCreate();
     }
 
@@ -31,66 +31,30 @@ public class SPPClientService extends Service {
         return new SPPBinder();
     }
 
-    private void addSPPListener(SPPListener sppListener){
-        sppClientController.addSPPListener(sppListener);
-    }
-
-    private void removeSPPLiestener(SPPListener sppListener){
-        sppClientController.removeSPPLiestener(sppListener);
-    }
-
-
     public class SPPBinder extends android.os.Binder{
-        public void init(BluetoothDevice device, int bufferSize){
-            sppClientController.init(device, bufferSize);
-        }
-
-        public void init(BluetoothDevice device){
-            sppClientController.init(device, 1024);
-        }
-
-        public void init(String address, int bufferSize){
-            sppClientController.init(address, bufferSize);
-        }
-
-        public void init(String address){
-            sppClientController.init(address, 1024);
-        }
-
-        public boolean isInited(){
-            return sppClientController.isInited();
-        }
-
-        public void connect(BluetoothDevice device, int buffSize){
-            sppClientController.init(device, buffSize);
-            sppClientController.connect();
-        }
 
         public void connect(BluetoothDevice device){
-            sppClientController.init(device, 1024);
-            sppClientController.connect();
-        }
-
-        public void connect(String address, int buffSize){
-            sppClientController.init(address, buffSize);
-            sppClientController.connect();
+            sppClientController.connect(device);
         }
 
         public void connect(String address){
-            sppClientController.init(address, 1024);
-            sppClientController.connect();
+            sppClientController.connect(address);
         }
 
-        public void connect(){
-            sppClientController.connect();
+        public void connect(BluetoothDevice device, int bufferSize){
+            sppClientController.connect(device, bufferSize);
         }
 
-        public void disconnedt(){
+        public void connect(String address, int bufferSize){
+            sppClientController.connect(address, bufferSize);
+        }
+
+        public void disconnect(){
             sppClientController.stop();
         }
 
         public void sendPacket(byte[] data){
-            sppClientController.send(data);
+            sppClientController.sendPacket(data);
         }
 
         public ENUMS.BLUETOOTH_STATES getState(){
