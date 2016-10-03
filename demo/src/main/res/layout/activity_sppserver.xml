@@ -6,14 +6,20 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    tools:context="me.kudryavka.bluecon_demo.SPPActivity">
+    tools:context="me.kudryavka.bluecon_demo.SPPClientActivity">
 
     <Button
-        android:id="@+id/btn_get_paired_devices"
-        android:text="@string/btn_get_paired_devices"
+        android:id="@+id/btn_start_spp_server_single"
+        android:text="@string/btn_start_spp_server_single"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"/>
+    <Button
+        android:id="@+id/btn_start_spp_server_multi"
+        android:text="@string/btn_start_spp_server_multi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btn_start_spp_server_single"/>
     <TextView
         android:id="@+id/con_device_info"
         android:text="@string/con_device_info"
@@ -21,23 +27,17 @@
         android:layout_height="wrap_content"
         android:textAlignment="center"
         android:layout_margin="15dp"
-        android:layout_below="@+id/btn_get_paired_devices"/>
-    <Button
-        android:id="@+id/btn_connect_to_device"
-        android:text="@string/btn_connect_to_device"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/con_device_info"/>
+        android:layout_below="@+id/btn_start_spp_server_multi"/>
 
     <ListView
         android:id="@+id/lists"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/btn_connect_to_device"
+        android:layout_below="@id/con_device_info"
         android:layout_above="@+id/msg_for_send"/>
     <EditText
         android:id="@+id/msg_for_send"
-        android:hint="@string/msg_hint"
+        android:hint="@string/msg_hint_broadcast"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/btn_send_to_device"

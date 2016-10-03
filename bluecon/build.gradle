@@ -8,8 +8,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 24
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "0.2"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -39,7 +39,7 @@ publish {
     repoName = 'BlueCon'
     groupId = 'me.kudryavka'
     artifactId = 'bluecon'
-    publishVersion = '0.1'
+    publishVersion = '0.2'
     desc = 'BlueCon - Android BT SPP Service'
     website = 'https://github.com/seyriz/BlueCon'
     bintrayUser = 'seyriz'

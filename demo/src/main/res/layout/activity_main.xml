@@ -7,8 +7,13 @@
     android:fitsSystemWindows="true"
     tools:context="me.kudryavka.bluecon_demo.MainActivity">
     <Button
-        android:id="@+id/btn_spp_activity"
-        android:text="@string/spp_activity"
+        android:id="@+id/btn_spp_client_activity"
+        android:text="@string/spp_client_activity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/btn_spp_server_activity"
+        android:text="@string/spp_server_activity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 </LinearLayout>

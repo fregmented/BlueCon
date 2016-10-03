@@ -22,14 +22,14 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import me.kudryavka.bluecon.Consts.ENUMS;
-import me.kudryavka.bluecon.SPP.SPPListener;
-import me.kudryavka.bluecon.SPP.SPPService;
+import me.kudryavka.bluecon.Listeners.SPPListener;
+import me.kudryavka.bluecon.SPPClient.SPPClientService;
 
-public class SPPActivity extends AppCompatActivity implements View.OnClickListener, SPPListener {
+public class SPPClientActivity extends AppCompatActivity implements View.OnClickListener, SPPListener {
 
-    private final static String TAG = "SPPActivity";
+    private final static String TAG = "SPPClientActivity";
 
-    private SPPService.SPPBinder svBinder;
+    private SPPClientService.SPPBinder svBinder;
     private boolean isSVConned;
 
     private EditText msg_for_send;
@@ -44,7 +44,7 @@ public class SPPActivity extends AppCompatActivity implements View.OnClickListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_spp);
+        setContentView(R.layout.activity_sppclient);
 
         msg_for_send = (EditText)findViewById(R.id.msg_for_send);
         btn_get_paired_devices = (Button)findViewById(R.id.btn_get_paired_devices);
@@ -58,7 +58,7 @@ public class SPPActivity extends AppCompatActivity implements View.OnClickListen
         btn_get_paired_devices.setOnClickListener(this);
         btn_connect_to_device.setOnClickListener(this);
         btn_send_to_device.setOnClickListener(this);
-        bindService(new Intent(this, SPPService.class), serviceConnection, BIND_AUTO_CREATE);
+        bindService(new Intent(this, SPPClientService.class), serviceConnection, BIND_AUTO_CREATE);
 
         handler = new Handler();
 
@@ -135,28 +135,28 @@ public class SPPActivity extends AppCompatActivity implements View.OnClickListen
         handler.post(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(SPPActivity.this, name + "/" + address + " Connected", Toast.LENGTH_LONG).show();
+                Toast.makeText(SPPClientActivity.this, name + "/" + address + " Connected", Toast.LENGTH_LONG).show();
             }
         });
     }
 
     @Override
-    public void onBluetoothDeviceConnecting() {
+    public void onBluetoothDeviceConnecting(String address) {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(SPPActivity.this, "Connecting...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SPPClientActivity.this, "Connecting...", Toast.LENGTH_SHORT).show();
 
             }
         });
     }
 
     @Override
-    public void onBluetoothDeviceDisconnected() {
+    public void onBluetoothDeviceDisconnected(String address) {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(SPPActivity.this, "Disconnected", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SPPClientActivity.this, "Disconnected", Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -167,7 +167,7 @@ public class SPPActivity extends AppCompatActivity implements View.OnClickListen
         handler.post(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(SPPActivity.this, "Bluetooth Disabled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SPPClientActivity.this, "Bluetooth Disabled", Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -178,15 +178,15 @@ public class SPPActivity extends AppCompatActivity implements View.OnClickListen
         handler.post(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(SPPActivity.this, "Can't use bluetooth", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SPPClientActivity.this, "Can't use bluetooth", Toast.LENGTH_SHORT).show();
 
             }
         });
     }
 
     @Override
-    public void onPacketReceived(final byte[] packet) {
-        Log.d(TAG, "PACKET RECV : " + new String(packet));
+    public void onPacketReceived(String address, final byte[] packet) {
+        Log.d(TAG, "PACKET RECV("+address+") : " + new String(packet));
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -197,8 +197,8 @@ public class SPPActivity extends AppCompatActivity implements View.OnClickListen
     }
 
     @Override
-    public void onPacketSended(final byte[] packet) {
-        Log.d(TAG, "PACKET SEND : " + new String(packet));
+    public void onPacketSended(String address, final byte[] packet) {
+        Log.d(TAG, "PACKET SEND("+address+") : " + new String(packet));
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -212,9 +212,9 @@ public class SPPActivity extends AppCompatActivity implements View.OnClickListen
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.e("SERVICE", "CONNNECTED");
-            svBinder = (SPPService.SPPBinder)service;
+            svBinder = (SPPClientService.SPPBinder)service;
             isSVConned = true;
-            svBinder.addSPPListener(SPPActivity.this);
+            svBinder.addSPPListener(SPPClientActivity.this);
         }
 
         @Override

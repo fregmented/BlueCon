@@ -1,14 +1,19 @@
 <resources>
     <string name="app_name">BlueCon</string>
-    <string name="spp_activity">SPP</string>
+    <string name="spp_client_activity">SPP Client</string>
+    <string name="spp_server_activity">SPP Server</string>
     <string name="btn_get_paired_devices">GET DEVICES</string>
+    <string name="btn_start_spp_server_single">Start Server Single</string>
+    <string name="btn_start_spp_server_multi">Start Server Multi</string>
     <string name="btn_connect_to_device">CON TO DEVICE</string>
     <string name="con_device_info">NULL / NULL</string>
     <string name="btn_send_to_device">SEND</string>
     <string name="msg_hint">MESSAGE</string>
+    <string name="msg_hint_broadcast">MESSAGE (BROADCAST)</string>
     <string name="need_conn_to_service">Need connect to service</string>
     <string name="select_device">Select device for connecting</string>
     <string name="need_select_device">Please select device for connecting</string>
     <string name="need_connect_device">Please connect device first</string>
     <string name="cancel">Cancel</string>
+    <string name="title_activity_sppserver">SPPServerActivity</string>
 </resources>

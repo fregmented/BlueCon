@@ -9,8 +9,6 @@ import java.util.ArrayList;
 
 import me.kudryavka.bluecon.Consts.ENUMS;
 import me.kudryavka.bluecon.Listeners.SPPListener;
-import me.kudryavka.bluecon.SPPClient.SPPClientController;
-import me.kudryavka.bluecon.SPPClient.SPPClientService;
 
 /**
  * Created by seyriz on 2016. 10. 3..
@@ -49,19 +47,19 @@ public class SPPServerService extends Service {
     public class SPPBinder extends android.os.Binder{
 
         public void startServerSingle(String serverName){
-            sppServerController.startServerSingle(serverName, 1024);
+            sppServerController.startServer(serverName, 1024, ENUMS.SERVER_MODE.SINGLE_CONNECTION);
         }
 
         public void startServerMultiple(String serverName){
-            sppServerController.startServerMultiple(serverName, 1024);
+            sppServerController.startServer(serverName, 1024, ENUMS.SERVER_MODE.MULTIPLE_CONNECTION);
         }
 
         public void startServerSingle(String serverName, int bufferSize){
-            sppServerController.startServerSingle(serverName, bufferSize);
+            sppServerController.startServer(serverName, bufferSize, ENUMS.SERVER_MODE.SINGLE_CONNECTION);
         }
 
         public void startServerMultiple(String serverName, int bufferSize){
-            sppServerController.startServerMultiple(serverName, bufferSize);
+            sppServerController.startServer(serverName, bufferSize, ENUMS.SERVER_MODE.MULTIPLE_CONNECTION);
         }
 
         public void stop(){
@@ -73,7 +71,7 @@ public class SPPServerService extends Service {
         }
 
         public void broadcast(byte[] data){
-            sppServerController.broadcast(data);
+            sppServerController.broadcastPacket(data);
         }
 
         public ArrayList<BluetoothDevice> getConnectedDevices(){
@@ -90,10 +88,6 @@ public class SPPServerService extends Service {
 
         public void removeSPPLiestener(SPPListener sppListener){
             sppServerController.removeSPPLiestener(sppListener);
-        }
-
-        public ArrayList<BluetoothDevice> getPairedDevices(){
-            return sppServerController.getPairedDevices();
         }
     }
 }

@@ -99,6 +99,7 @@ public class SPPClientController {
             switch (bluetooth_states){
                 case CONNECTED:
                     sppListener.onBluetoothDeviceConnected(conDevice.getName(), conDevice.getAddress());
+                    break;
                 case DISCONNECTED:
                     sppListener.onBluetoothDeviceDisconnected(address);
                     break;
@@ -112,7 +113,6 @@ public class SPPClientController {
                     sppListener.onBluetoothDisabled();
                     break;
             }
-            sppListener.onBluetoothDisabled();
         }
     }
 

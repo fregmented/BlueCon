@@ -8,6 +8,9 @@
         android:supportsRtl="true">
         <service android:name=".SPPClient.SPPClientService"
             android:exported="true"/>
+
+        <service android:name=".SPPServer.SPPServerService"
+            android:exported="true"/>
     </application>
 
 </manifest>
