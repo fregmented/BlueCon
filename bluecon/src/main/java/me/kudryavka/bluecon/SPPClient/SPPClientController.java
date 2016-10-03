@@ -1,10 +1,11 @@
-package me.kudryavka.bluecon.SPP;
+package me.kudryavka.bluecon.SPPClient;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
@@ -16,13 +17,14 @@ import java.util.Set;
 
 import me.kudryavka.bluecon.Consts.BT_UUID;
 import me.kudryavka.bluecon.Consts.ENUMS;
+import me.kudryavka.bluecon.Listeners.SPPListener;
 
 /**
  * Created by seyriz on 2016. 10. 3..
  */
 
-public class SPPController {
-    private static final String TAG = "SPPController";
+public class SPPClientController {
+    private static final String TAG = "SPPClientController";
 
     private Context context;
 
@@ -38,10 +40,10 @@ public class SPPController {
 
     private Integer bufferSize;
 
-    public SPPController(Context context) {
+    public SPPClientController(Context context) {
         this.context = context;
         getBlueToothAdapter();
-        setBluetooth_states(ENUMS.BLUETOOTH_STATES.DISCONNECTED);
+        setBluetooth_states(ENUMS.BLUETOOTH_STATES.DISCONNECTED, null);
     }
 
     private BluetoothAdapter getBlueToothAdapter(){
@@ -59,12 +61,12 @@ public class SPPController {
 
     private boolean isBlueToothEnabled(){
         if(getBlueToothAdapter() == null){
-            setBluetooth_states(ENUMS.BLUETOOTH_STATES.NOT_SUPPORT);
+            setBluetooth_states(ENUMS.BLUETOOTH_STATES.NOT_SUPPORT, null);
             return false;
         }
         else {
             if(!getBlueToothAdapter().isEnabled()){
-                setBluetooth_states(ENUMS.BLUETOOTH_STATES.DISABLED);
+                setBluetooth_states(ENUMS.BLUETOOTH_STATES.DISABLED, null);
                 return false;
             }
             else {
@@ -91,17 +93,17 @@ public class SPPController {
         return bluetooth_states;
     }
 
-    private void setBluetooth_states(ENUMS.BLUETOOTH_STATES bluetooth_states) {
+    private void setBluetooth_states(ENUMS.BLUETOOTH_STATES bluetooth_states, String address) {
         this.bluetooth_states = bluetooth_states;
         for(SPPListener sppListener : sppListeners){
             switch (bluetooth_states){
                 case CONNECTED:
                     sppListener.onBluetoothDeviceConnected(conDevice.getName(), conDevice.getAddress());
                 case DISCONNECTED:
-                    sppListener.onBluetoothDeviceDisconnected();
+                    sppListener.onBluetoothDeviceDisconnected(address);
                     break;
                 case CONNECTING:
-                    sppListener.onBluetoothDeviceConnecting();
+                    sppListener.onBluetoothDeviceConnecting(address);
                     break;
                 case NOT_SUPPORT:
                     sppListener.onBluetoothNotSupported();
@@ -151,12 +153,13 @@ public class SPPController {
             resetThreads();
             connectThread = new ConnectThread(conDevice);
             connectThread.start();
-            setBluetooth_states(ENUMS.BLUETOOTH_STATES.CONNECTING);
+            setBluetooth_states(ENUMS.BLUETOOTH_STATES.CONNECTING, conDevice.getAddress());
         }
     }
 
     private void reconnect(){
         Log.d(TAG, "RECONNECT TO : " + conDevice);
+        setBluetooth_states(ENUMS.BLUETOOTH_STATES.DISCONNECTED, conDevice.getAddress());
         connect();
     }
 
@@ -166,14 +169,14 @@ public class SPPController {
         comThread = new ComThread(socket, bufferSize);
         comThread.start();
 
-        setBluetooth_states(ENUMS.BLUETOOTH_STATES.CONNECTED);
+        setBluetooth_states(ENUMS.BLUETOOTH_STATES.CONNECTED, conDevice.getAddress());
     }
 
     synchronized void stop() {
         if(conDevice!=null) {
             Log.d(TAG, "DISCONNECT : " + conDevice);
             resetThreads();
-            setBluetooth_states(ENUMS.BLUETOOTH_STATES.DISCONNECTED);
+            setBluetooth_states(ENUMS.BLUETOOTH_STATES.DISCONNECTED, conDevice.getAddress());
         }
     }
 
@@ -243,7 +246,7 @@ public class SPPController {
                     reconnect();
                     interrupt();
                 }
-                synchronized (SPPController.this){
+                synchronized (SPPClientController.this){
                     connectThread = null;
                 }
                 connected(mSocket);
@@ -296,7 +299,7 @@ public class SPPController {
                     byte[] read = new byte[len];
                     System.arraycopy(data, 0, read, 0, len);
                     for (SPPListener sppListener : sppListeners) {
-                        sppListener.onPacketReceived(read);
+                        sppListener.onPacketReceived(conDevice.getAddress(), read);
                     }
                 } catch (IOException e) {
                     Log.e(TAG, "FAILED TO READ PACKET", e);
@@ -311,7 +314,7 @@ public class SPPController {
             try{
                 outputStream.write(data);
                 for(SPPListener sppListener : sppListeners){
-                    sppListener.onPacketSended(data);
+                    sppListener.onPacketSended(conDevice.getAddress(), data);
                 }
             }
             catch (IOException e){

@@ -1,4 +1,4 @@
-package me.kudryavka.bluecon.SPP;
+package me.kudryavka.bluecon.SPPClient;
 
 import android.app.Service;
 import android.bluetooth.BluetoothDevice;
@@ -8,19 +8,20 @@ import android.os.IBinder;
 import java.util.ArrayList;
 
 import me.kudryavka.bluecon.Consts.ENUMS;
+import me.kudryavka.bluecon.Listeners.SPPListener;
 
-public class SPPService extends Service {
+public class SPPClientService extends Service {
 
-    private static final String TAG = "SPPService";
+    private static final String TAG = "SPPClientService";
 
-    private SPPController sppController;
+    private SPPClientController sppClientController;
 
-    public SPPService() {
+    public SPPClientService() {
     }
 
     @Override
     public void onCreate() {
-        sppController = new SPPController(getApplicationContext());
+        sppClientController = new SPPClientController(getApplicationContext());
         super.onCreate();
     }
 
@@ -31,83 +32,81 @@ public class SPPService extends Service {
     }
 
     private void addSPPListener(SPPListener sppListener){
-        sppController.addSPPListener(sppListener);
+        sppClientController.addSPPListener(sppListener);
     }
 
     private void removeSPPLiestener(SPPListener sppListener){
-        sppController.removeSPPLiestener(sppListener);
+        sppClientController.removeSPPLiestener(sppListener);
     }
 
 
     public class SPPBinder extends android.os.Binder{
         public void init(BluetoothDevice device, int bufferSize){
-            sppController.init(device, bufferSize);
+            sppClientController.init(device, bufferSize);
         }
 
         public void init(BluetoothDevice device){
-            sppController.init(device, 1024);
+            sppClientController.init(device, 1024);
         }
 
         public void init(String address, int bufferSize){
-            sppController.init(address, bufferSize);
+            sppClientController.init(address, bufferSize);
         }
 
         public void init(String address){
-            sppController.init(address, 1024);
+            sppClientController.init(address, 1024);
         }
 
         public boolean isInited(){
-            return sppController.isInited();
+            return sppClientController.isInited();
         }
 
         public void connect(BluetoothDevice device, int buffSize){
-            sppController.init(device, buffSize);
-            sppController.connect();
+            sppClientController.init(device, buffSize);
+            sppClientController.connect();
         }
 
         public void connect(BluetoothDevice device){
-            sppController.init(device, 1024);
-            sppController.connect();
+            sppClientController.init(device, 1024);
+            sppClientController.connect();
         }
 
         public void connect(String address, int buffSize){
-            sppController.init(address, buffSize);
-            sppController.connect();
+            sppClientController.init(address, buffSize);
+            sppClientController.connect();
         }
 
         public void connect(String address){
-            sppController.init(address, 1024);
-            sppController.connect();
+            sppClientController.init(address, 1024);
+            sppClientController.connect();
         }
 
         public void connect(){
-            sppController.connect();
+            sppClientController.connect();
         }
 
         public void disconnedt(){
-            sppController.stop();
+            sppClientController.stop();
         }
 
         public void sendPacket(byte[] data){
-            sppController.send(data);
+            sppClientController.send(data);
         }
 
         public ENUMS.BLUETOOTH_STATES getState(){
-            return sppController.getBluetooth_states();
+            return sppClientController.getBluetooth_states();
         }
 
         public void addSPPListener(SPPListener sppListener){
-            sppController.addSPPListener(sppListener);
+            sppClientController.addSPPListener(sppListener);
         }
 
         public void removeSPPLiestener(SPPListener sppListener){
-            sppController.removeSPPLiestener(sppListener);
+            sppClientController.removeSPPLiestener(sppListener);
         }
 
         public ArrayList<BluetoothDevice> getPairedDevices(){
-            return sppController.getPairedDevices();
+            return sppClientController.getPairedDevices();
         }
     }
-
-
 }

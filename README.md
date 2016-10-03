@@ -10,7 +10,9 @@ this Service is support Android 4.4 and grater environment.
 if you use jcenter repository, just add dependency your app.
 ```gradle
 dependencies {
+    ...
     compile 'me.kudryavka:bluecon:0.1'
+    ...
 }
 ```
 
