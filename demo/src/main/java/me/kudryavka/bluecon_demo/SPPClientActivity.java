@@ -95,7 +95,7 @@ public class SPPClientActivity extends AppCompatActivity implements View.OnClick
                                     String address = selected.split("/")[1];
                                     for(BluetoothDevice device : devices){
                                         if(device.getAddress().equals(address)){
-                                            svBinder.init(device);
+                                            svBinder.connect(device);
                                             con_device_info.setText(selected);
                                             break;
                                         }
@@ -104,14 +104,6 @@ public class SPPClientActivity extends AppCompatActivity implements View.OnClick
                                 }
                             })
                             .show();
-                    break;
-                case R.id.btn_connect_to_device:
-                    if(svBinder.isInited()){
-                        svBinder.connect();
-                    }
-                    else {
-                        Toast.makeText(this, getString(R.string.need_select_device), Toast.LENGTH_LONG).show();
-                    }
                     break;
                 case R.id.btn_send_to_device:
                     if(svBinder.getState() == ENUMS.BLUETOOTH_STATES.CONNECTED){

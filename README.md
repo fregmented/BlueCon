@@ -11,7 +11,7 @@ if you use jcenter repository, just add dependency your app.
 ```gradle
 dependencies {
     ...
-    compile 'me.kudryavka:bluecon:0.2'
+    compile 'me.kudryavka:bluecon:0.2.1'
     ...
 }
 ```
@@ -259,20 +259,20 @@ public ServiceConnection serviceConnection = new ServiceConnection() {
 ```
 You can get Connecte device list.
 ```java
-ArrayList<BluetoothDevice> devices = sppServerController.getConnectedDevice()
+ArrayList<BluetoothDevice> devices = svBinder.getConnectedDevice()
 ```
 You can start server with server's name, inputStream buffersize, server mode.
 ```java
 SERVER_MODE{SINGLE_CONNECTION, MULTIPLE_CONNECTION}
-sppServerController.startServer(String serverName, int bufferSize, ENUMS.SERVER_MODE serverMode);
+svBinder.startServer(String serverName, int bufferSize, ENUMS.SERVER_MODE serverMode);
 ```
 Sending a packet
 ```java
-sppServerController.sendPacket(String addressbyte[] data);
+svBinder.sendPacket(String addressbyte[] data);
 ```
 or broadcast
 ```java
-sppServerController.broadcastPacket(byte[] data);
+svBinder.broadcastPacket(byte[] data);
 ```
 
 #### As a instance

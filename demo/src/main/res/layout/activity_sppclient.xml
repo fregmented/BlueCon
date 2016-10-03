@@ -27,7 +27,8 @@
         android:text="@string/btn_connect_to_device"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/con_device_info"/>
+        android:layout_below="@+id/con_device_info"
+        android:visibility="gone"/>
 
     <ListView
         android:id="@+id/lists"
