@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion 24
@@ -28,4 +29,20 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:24.2.1'
     testCompile 'junit:junit:4.12'
+}
+
+publish {
+    // ./gradlew clean build bintrayUpload -PdryRun=false
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    userOrg = 'seyriz'
+    repoName = 'BlueCon'
+    groupId = 'me.kudryavka'
+    artifactId = 'bluecon'
+    publishVersion = '0.1'
+    desc = 'BlueCon - Android BT SPP Service'
+    website = 'https://github.com/seyriz/BlueCon'
+    bintrayUser = 'seyriz'
+    bintrayKey = properties.getProperty("bintray.apiKey")
+    dryRun = false
 }

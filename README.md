@@ -1,8 +1,18 @@
 # BlueCon
 
+[ ![Download](https://api.bintray.com/packages/seyriz/BlueCon/bluecon/images/download.svg) ](https://bintray.com/seyriz/BlueCon/bluecon/_latestVersion)
+
 BlueCon is SPP Service for Android.
 
 this Service is support Android 4.4 and grater environment.
+
+## Installation
+if you use jcenter repository, just add dependency your app.
+```gradle
+dependencies {
+    compile 'me.kudryavka:bluecon:0.1'
+}
+```
 
 ## Usage
 
