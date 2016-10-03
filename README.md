@@ -19,7 +19,9 @@ dependencies {
 just simple.
 
 Add permission in your manifest file for using BLUETOOTH like this.
-    <uses-permission android:name="android.permission.BLUETOOTH" />
+```xml
+<uses-permission android:name="android.permission.BLUETOOTH" />
+```
 and connect service for using library
 
 first, make service connection
